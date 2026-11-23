@@ -90,8 +90,9 @@ pub struct CooperateArgs {
     /// Save the unfiltered reply to a new local JSON file before presenting it (sync only).
     #[arg(long)]
     pub save_full: Option<PathBuf>,
-    /// Saved unfiltered predecessor; its VOM is reused for an exact unchanged reply and
-    /// patched for an exact text delta. Save the merged reply with --save-full to keep the chain.
+    /// Saved unfiltered predecessor; its VOM is reused for an exact unchanged reply,
+    /// patched for an exact text delta, and diffed for any other changed page so only
+    /// the changed lines are printed. Save the merged reply with --save-full to keep the chain.
     #[arg(long)]
     pub baseline: Option<PathBuf>,
     /// Recover transient read-only sync refusals with wait then sync, at most 3 attempts.
@@ -220,6 +221,11 @@ pub fn dispatch(
             &args.match_text,
             args.context_lines.unwrap_or(12) as usize,
         );
+    }
+    if args.match_text.is_empty()
+        && let Some(base) = baseline.as_ref()
+    {
+        presentation::diff_against(&mut reply, base, 3);
     }
     if let Some(path) = args.save_full {
         reply["full_output_path"] = serde_json::json!(path);

@@ -19,6 +19,12 @@ description: Automate Chromium via bsk CLI or MCP.
 3. `bsk sync` after navigation or human input.
 4. `bsk close` when done (even on error) unless asked to keep open.
 
+## Cost
+
+- A `bsk sync` after any change re-sends the page unless the change is pure text. Keep a baseline chain: `bsk open "<url>" --json > obs-1.json`, then `bsk cooperate sync --json --baseline obs-1.json --save-full obs-2.json` on later syncs; unchanged/text edits reuse the saved view and any other change prints only changed lines (`presentation.strategy=baseline_diff`).
+- Keep one `--max-tokens` budget per page; changing it forces a full re-capture.
+- Batch decided actions with `bsk plan` / `bsk step`; prefer `bsk read page` / `bsk read extract` for data.
+
 ## MCP
 
 Full parity: `bsk_session`, `bsk_page`, `bsk_inspect`, `bsk_interact`, `bsk_plan`, `bsk_tabs`, `bsk_assist`, `bsk_ledger`, `bsk_debug`, `bsk_video`, `bsk_record`.
